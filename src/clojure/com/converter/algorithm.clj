@@ -8,6 +8,12 @@
                  :Nj "Њ", :NJ "Њ", :nj "њ", :Dj "Ђ", :DJ "Ђ", :dj "ђ", :Dz "Џ", 
                  :DZ "Џ", :dz "џ", :Dž "Џ", :DŽ "Џ", :dž "џ"})
 
+(def cyr2latmap {:А "A", :а "a", :Б "B", :б "b", :В "V", :в "v", :Г "G", :г "g", :Д "D", :д "d", :Ђ "Đ", :ђ "đ", :Е "E", :е "e", 
+                 :Ж "Ž", :ж "ž", :З "Z", :з "z", :И "I", :и "i", :Ј "J", :ј "j", :К "K", :к "k", :Л "L", :л "l", :Љ "Lj", :љ "lj",
+                 :М "M", :м "m", :Н "N", :н "n", :Њ "Nj", :њ "nj", :О "O", :о "o", :П "P", :п "p", :Р "R", :р "r", :С "S", :с "s",
+                 :Т "T", :т "t", :Ћ "Ć", :ћ "ć", :У "U", :у "u", :Ф "F", :ф "f", :Х "H", :х "h", :Ц "C", :ц "c", :Ч "Č", :ч "č", 
+                 :Џ "Dž", :џ "dž", :Ш "Š", :ш "š"})
+
 
 
 (defn make-str-from-chars
@@ -57,10 +63,24 @@
         (= nil (lat2cyrmap (keyword (first latintext)))) (recur (rest latintext) (conj result (first latintext)))
         :else (recur (rest latintext) (conj result (lat2cyrmap (keyword (first latintext)))))) result)))
 
+(defn convert-to-lat-alg 
+  "converts cyrillic sequnece of characters to latin"
+  ([cyrillictext] (convert-to-lat-alg cyrillictext (vector)))
+  ([cyrillictext result]
+    (if (not (empty? cyrillictext))
+      (cond
+        (= nil (cyr2latmap (keyword (first cyrillictext)))) (recur (rest cyrillictext) (conj result (first cyrillictext)))
+        :else (recur (rest cyrillictext) (conj result (cyr2latmap (keyword (first cyrillictext)))))) result)))
+
 (defn convert-to-cyr
   "converts latin text to cyrillic"
   [latintext]
   (make-str-from-chars (convert-to-cyr-alg (make-chars-from-string latintext))))
+
+(defn convert-to-lat
+  "converts cyrillic text to latin"
+  [cyrillictext]
+  (make-str-from-chars (convert-to-lat-alg (make-chars-from-string cyrillictext))))
 
 
 

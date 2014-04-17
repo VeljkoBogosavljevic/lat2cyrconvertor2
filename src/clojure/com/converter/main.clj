@@ -15,7 +15,7 @@
 (declare android.widget.LinearLayout homec2llayout)
 (declare android.widget.LinearLayout historylayout)
 (declare android.widget.LinearLayout changeuserlayout)
-(declare exit-application login-notification login-attempt login change-layout set-tabs set-conversion-layout show-history change-credentials convert-latin)
+(declare exit-application login-notification login-attempt login change-layout set-tabs set-conversion-layout show-history change-credentials convert-latin convert-cyrillic)
 
 (defn mt-text [] (atom ""))
 (defn hs-text [] (atom ""))
@@ -91,7 +91,7 @@
                                   :gravity :center
                                   :id-holder true}
                    [:button {:text "Convert"
-                             ;:on-click ()
+                             :on-click (fn [_] (convert-cyrillic))
                              }]
                    [:button {:text "Exit"
                              :on-click (fn [_] (exit-application))}]]  
@@ -211,6 +211,10 @@
  (defn convert-latin []
    (do (set-element ::l2ccyrillic (algorithm/convert-to-cyr (get-element ::l2clatin homel2clayout)) homel2clayout)
       (data/update-history (get-element ::l2clatin homel2clayout) (algorithm/convert-to-cyr (get-element ::l2clatin homel2clayout)))))
+ 
+  (defn convert-cyrillic []
+   (do (set-element ::c2llatin (algorithm/convert-to-lat (get-element ::c2lcyrillic homec2llayout)) homec2llayout)
+      (data/update-history (get-element ::c2llatin homec2llayout) (algorithm/convert-to-cyr (get-element ::c2lcyrillic homec2llayout)))))
  
  (defn set-tabs[]
  (on-ui
