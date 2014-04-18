@@ -10,6 +10,7 @@
   (:require [com.converter.data :as data]
             [com.converter.algorithm :as algorithm]))
 
+; Declare layouts and functions
 (declare android.widget.LinearLayout mylayout)
 (declare android.widget.LinearLayout homel2clayout)
 (declare android.widget.LinearLayout homec2llayout)
@@ -17,13 +18,16 @@
 (declare android.widget.LinearLayout changeuserlayout)
 (declare exit-application login-notification login-attempt login change-layout set-tabs set-conversion-layout show-history change-credentials convert-latin convert-cyrillic)
 
+; Define help functions used in project
 (defn mt-text [] (atom ""))
 (defn hs-text [] (atom ""))
 (defn now [] (new java.util.Date))
 
+; Define text to be shown in text-views
 (def text (mt-text))
 (def history-text (hs-text))
 
+; Main layout used for Log In
 (def main-layout [:linear-layout {:orientation :vertical
                                   :gravity :center
                                   :id-holder true
@@ -43,6 +47,7 @@
                                :text-size [12 :dp]
                                :id ::loginNoticifation}]])
 
+; Latin to Cyrillic converter layout
 (def home-l2c-layout [:linear-layout {:orientation :vertical
                                   :gravity :center
                                   :id-holder true
@@ -55,11 +60,11 @@
                    [:edit-text {:hint "Latin"
                                 :layout-width :fill
                                 ;:layout-height :match
-                                :id ::l2clatin}]
+                               :id ::l2clatin}]
                   [:edit-text {:hint "Cyrillic"
                                 :layout-width :fill
                                 ;:layout-height :match
-                                :id ::l2ccyrillic}]
+                               :id ::l2ccyrillic}]
                   [:linear-layout {:orientation :horizontal
                                   :gravity :center
                                   :id-holder true}
@@ -70,6 +75,7 @@
                              :on-click (fn [_] (exit-application))}]] 
                  ])
 
+; Cyrillic to Latin converter layout
 (def home-c2l-layout [:linear-layout {:orientation :vertical
                                   :gravity :center
                                   :id-holder true
@@ -97,6 +103,7 @@
                              :on-click (fn [_] (exit-application))}]]  
                  ])
 
+; History of converted words and/or sentences layout
 (def history-layout [:linear-layout {:orientation :vertical
                                   :gravity :center
                                   :id-holder true
@@ -116,6 +123,7 @@
                    [:button {:text "Exit"
                              :on-click (fn [_] (exit-application))}]]])
 
+; Change user credentials (username and password) layout
 (def change-user-layout  [:linear-layout {:orientation :vertical
                                   :gravity :center
                                   :id-holder true
@@ -143,6 +151,7 @@
                           ])
 
 
+; Defining MainActivity
 (defactivity com.converter.MainActivity
   :def a
   :on-create
@@ -151,21 +160,21 @@
      (set-content-view! a
       (make-ui main-layout)))))
 
-(defn get-element [element layout]
+(defn get-element "Gets text from passed element on passed layout" [element layout]
   (str (.getText (element (.getTag layout)))))
 
-(defn set-element [element s layout]
+(defn set-element "Sets text s (as argument) on passed element on passed layout" [element s layout]
   (on-ui (.setText (element (.getTag layout)) s)))
 
 
-(defn update-ui []
+(defn update-ui "Updates login notification text view" []
   (set-element ::loginNoticifation @text mylayout))
 
-(defn login-attempt []
+(defn login-attempt "Sets information about failure login attempt on text view" []
   (reset! text (str "Login failure ! Time: " (.format (java.text.SimpleDateFormat. "dd/MM/yyyy hh:mm:ss") (now)) "\n") )
   (update-ui))
 
- (defn login-notification []
+ (defn login-notification "Fires Android successful login Notification" []
   (fire :mynotification
       (notification :icon com.converter.R$drawable/ic_launcher
                     :ticker-text "Crypter - Login successful !"
@@ -173,50 +182,50 @@
                     :content-text "Login successful !"
                     :action [:activity Intent/CATEGORY_HOME])))
  
- (defn login []
+ (defn login "Login function" []
    (if (= (@data/user-main :username) (get-element ::username mylayout))
      (if (= (@data/user-main :password) (get-element ::password mylayout))
        (do (login-notification) (set-tabs))
        (login-attempt))
      (login-attempt)))
 
- (defn change-layout [layout]
+ (defn change-layout "Sets layout on main activity. Layout is given as argument" [layout]
    (on-ui
      (set-content-view! a
       (make-ui layout))))
  
- (defn make-history [s]
+ (defn make-history "Updates history-text var from data structure passed as argument" [s]
    (if (not (empty? s))
    (do
    (swap! history-text str "Latin: " ((first s) :lat) " - Cyrillic: " ((first s) :cyr) "\n")
    (recur (rest s)))))
  
- (defn reset-history []
+ (defn reset-history "Reset history-text var" []
    (reset! history-text ""))
  
- (defn show-history []
+ (defn show-history "Show history of converted words and/or sentences on history layout" []
    (do (reset-history)
      (make-history @data/history)
      (set-element ::historyview @history-text historylayout)))
  
- (defn set-current-user []
+ (defn set-current-user "Show informations (username and password) about current user" []
    (do (set-element ::changeuserutxtusername (str "Current username: "(data/get-username @data/user-main)) changeuserlayout))
     (set-element ::changeusertxtpassword (str "Current password: "(data/get-password @data/user-main)) changeuserlayout))
  
- (defn change-credentials []
+ (defn change-credentials "Changes information (username and password) of user" []
    (do (data/update-user (get-element ::changeuserusername changeuserlayout) (get-element ::changeuserpassword changeuserlayout))
      (exit-application)
      (.startActivity a (.getIntent a))))
  
- (defn convert-latin []
+ (defn convert-latin "Function that converts Latin text" []
    (do (set-element ::l2ccyrillic (algorithm/convert-to-cyr (get-element ::l2clatin homel2clayout)) homel2clayout)
       (data/update-history (get-element ::l2clatin homel2clayout) (algorithm/convert-to-cyr (get-element ::l2clatin homel2clayout)))))
  
-  (defn convert-cyrillic []
+  (defn convert-cyrillic "Function that converts cyrillic text" []
    (do (set-element ::c2llatin (algorithm/convert-to-lat (get-element ::c2lcyrillic homec2llayout)) homec2llayout)
       (data/update-history (get-element ::c2llatin homec2llayout) (algorithm/convert-to-cyr (get-element ::c2lcyrillic homec2llayout)))))
  
- (defn set-tabs[]
+ (defn set-tabs "Sets tab action bar" []
  (on-ui
   (neko.action-bar/setup-action-bar a
   {:title "Converter"
@@ -245,7 +254,7 @@
  
 
 
-(defn exit-application []
+(defn exit-application "Exit from application" []
   (.finish a))
 
 
