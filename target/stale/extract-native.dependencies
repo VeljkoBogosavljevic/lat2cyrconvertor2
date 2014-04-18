@@ -1,1 +1,1 @@
-([:dependencies ([org.clojure-android/clojure "1.5.1-jb" :use-resources true])])
+([:dependencies ([org.clojure-android/clojure "1.5.1-jb" :use-resources true] [neko/neko "3.0.0"] [org.clojure/tools.nrepl "0.2.3"] [compliment/compliment "0.0.3"] [org.clojure/java.jdbc "0.2.3"])])

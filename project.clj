@@ -1,6 +1,6 @@
 (defproject converter/converter "0.0.1-SNAPSHOT"
-  :description "FIXME: Android project description"
-  :url "http://example.com/FIXME"
+  :description "Clojure Android Latin to Cyrillic convertor"
+  :url "https://github.com/VeljkoBogosavljevic/lat2cyrconvertor2"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
@@ -14,7 +14,10 @@
   :dependencies [[org.clojure-android/clojure "1.5.1-jb" :use-resources true]
                  [neko/neko "3.0.0"]]
   :profiles {:dev {:dependencies [[org.clojure/tools.nrepl "0.2.3"]
-                                  [compliment "0.0.3"]]
+                                  [compliment "0.0.3"]
+                                  [org.clojure/java.jdbc "0.2.3"]
+                                  [org.xerial/sqlite-jdbc "3.7.2"]
+                                  [sqlitejdbc "0.5.6"]]
                    :android {:aot :all-with-unused}}
              :release {:android
                        {;; Specify the path to your private keystore

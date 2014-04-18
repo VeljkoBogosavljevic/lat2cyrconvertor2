@@ -1,5 +1,6 @@
 (ns com.converter.algorithm)
 
+; Latin to Cyrrilic map
 (def lat2cyrmap {:A "А", :a "а", :B "Б", :b "б", :C "Ц", :c "ц", :Č "Ч", :č "ч", :Ć "Ћ", :ć "ћ", :D "Д", :d "д", :Đ "Ђ", :đ "ђ", 
                  :E "Е", :e "е", :F "Ф", :f "ф", :G "Г", :g "г", :H "Х", :h "х",
                  :I "И", :i "и", :J "Ј", :j "ј", :K "К", :k "к", :L "Л", :l "л", :M "М", :m "м", :N "Н", :n "н", :O "О", :o "о", 
@@ -8,6 +9,7 @@
                  :Nj "Њ", :NJ "Њ", :nj "њ", :Dj "Ђ", :DJ "Ђ", :dj "ђ", :Dz "Џ", 
                  :DZ "Џ", :dz "џ", :Dž "Џ", :DŽ "Џ", :dž "џ"})
 
+; Cyrillic to Latin map
 (def cyr2latmap {:А "A", :а "a", :Б "B", :б "b", :В "V", :в "v", :Г "G", :г "g", :Д "D", :д "d", :Ђ "Đ", :ђ "đ", :Е "E", :е "e", 
                  :Ж "Ž", :ж "ž", :З "Z", :з "z", :И "I", :и "i", :Ј "J", :ј "j", :К "K", :к "k", :Л "L", :л "l", :Љ "Lj", :љ "lj",
                  :М "M", :м "m", :Н "N", :н "n", :Њ "Nj", :њ "nj", :О "O", :о "o", :П "P", :п "p", :Р "R", :р "r", :С "S", :с "s",
@@ -16,7 +18,7 @@
 
 
 
-(defn make-str-from-chars
+(defn- make-str-from-chars
      "make a string from a sequence of  characters"
      ([chars] (make-str-from-chars chars ""))
      ([chars result]
@@ -26,7 +28,7 @@
 
 
 
-(defn make-chars-from-string 
+(defn- make-chars-from-string 
   "make a sequence of characters from a string"
   ([string] (make-chars-from-string string (vector)))
   ([string result]
@@ -54,7 +56,7 @@
        :else (recur (next string) (conj result (str (first string))))
        )result)))
 
-(defn convert-to-cyr-alg 
+(defn- convert-to-cyr-alg 
   "converts latin sequnece of characters to cyrillic"
   ([latintext] (convert-to-cyr-alg latintext (vector)))
   ([latintext result]
@@ -63,7 +65,7 @@
         (= nil (lat2cyrmap (keyword (first latintext)))) (recur (rest latintext) (conj result (first latintext)))
         :else (recur (rest latintext) (conj result (lat2cyrmap (keyword (first latintext)))))) result)))
 
-(defn convert-to-lat-alg 
+(defn- convert-to-lat-alg 
   "converts cyrillic sequnece of characters to latin"
   ([cyrillictext] (convert-to-lat-alg cyrillictext (vector)))
   ([cyrillictext result]

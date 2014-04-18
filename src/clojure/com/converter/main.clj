@@ -8,7 +8,8 @@
            android.content.Intent
            android.widget.Toast)
   (:require [com.converter.data :as data]
-            [com.converter.algorithm :as algorithm]))
+            [com.converter.algorithm :as algorithm]
+            [com.converter.database :as database]))
 
 ; Declare layouts and functions
 (declare android.widget.LinearLayout mylayout)
@@ -17,6 +18,7 @@
 (declare android.widget.LinearLayout historylayout)
 (declare android.widget.LinearLayout changeuserlayout)
 (declare exit-application login-notification login-attempt login change-layout set-tabs set-conversion-layout show-history change-credentials convert-latin convert-cyrillic)
+(declare login-db show-history-db set-current-user-db login-db convert-latin-db convert-cyrillic-db)
 
 ; Define help functions used in project
 (defn mt-text [] (atom ""))
@@ -40,7 +42,7 @@
                                   :gravity :center
                                   :id-holder true}
                    [:button {:text "Login"
-                             :on-click (fn [_] (login))}]
+                             :on-click (fn [_] (login))}] ; (login-db)
                    [:button {:text "Exit"
                              :on-click (fn [_] (exit-application))}]]
                   [:text-view {:text @text
@@ -69,7 +71,7 @@
                                   :gravity :center
                                   :id-holder true}
                    [:button {:text "Convert"
-                             :on-click (fn [_] (convert-latin))
+                             :on-click (fn [_] (convert-latin)) ; (convert-latin-db)
                              }]
                    [:button {:text "Exit"
                              :on-click (fn [_] (exit-application))}]] 
@@ -97,7 +99,7 @@
                                   :gravity :center
                                   :id-holder true}
                    [:button {:text "Convert"
-                             :on-click (fn [_] (convert-cyrillic))
+                             :on-click (fn [_] (convert-cyrillic)) ; (convert-cyrillic-db)
                              }]
                    [:button {:text "Exit"
                              :on-click (fn [_] (exit-application))}]]  
@@ -144,7 +146,7 @@
                                   :gravity :center
                                   :id-holder true}
                            [:button {:text "Change"
-                                     :on-click (fn [_] (change-credentials))
+                                     :on-click (fn [_] (change-credentials)) ; (change-credentials-db)
                                      }]
                            [:button {:text "Exit"
                                      :on-click (fn [_] (exit-application))}]]
@@ -188,6 +190,13 @@
        (do (login-notification) (set-tabs))
        (login-attempt))
      (login-attempt)))
+ 
+  (defn login-db "Login function - reading data from database" []
+   (if (= (database/get-username) (get-element ::username mylayout))
+     (if (= (database/get-password) (get-element ::password mylayout))
+       (do (login-notification) (set-tabs))
+       (login-attempt))
+     (login-attempt)))
 
  (defn change-layout "Sets layout on main activity. Layout is given as argument" [layout]
    (on-ui
@@ -197,7 +206,7 @@
  (defn make-history "Updates history-text var from data structure passed as argument" [s]
    (if (not (empty? s))
    (do
-   (swap! history-text str "Latin: " ((first s) :lat) " - Cyrillic: " ((first s) :cyr) "\n")
+   (swap! history-text str "Latin: " ((first s) :latin) " - Cyrillic: " ((first s) :cyrillic) "\n")
    (recur (rest s)))))
  
  (defn reset-history "Reset history-text var" []
@@ -208,12 +217,26 @@
      (make-history @data/history)
      (set-element ::historyview @history-text historylayout)))
  
+  (defn show-history-db "Show history of converted words and/or sentences saved in database on history layout" []
+   (do (reset-history)
+     (make-history (database/select-history))
+     (set-element ::historyview @history-text historylayout)))
+ 
  (defn set-current-user "Show informations (username and password) about current user" []
    (do (set-element ::changeuserutxtusername (str "Current username: "(data/get-username @data/user-main)) changeuserlayout))
     (set-element ::changeusertxtpassword (str "Current password: "(data/get-password @data/user-main)) changeuserlayout))
  
+  (defn set-current-user-db "Show database informations (username and password) about current user" []
+   (do (set-element ::changeuserutxtusername (str "Current username: "(database/get-username)) changeuserlayout))
+    (set-element ::changeusertxtpassword (str "Current password: "(database/get-password)) changeuserlayout))
+ 
  (defn change-credentials "Changes information (username and password) of user" []
    (do (data/update-user (get-element ::changeuserusername changeuserlayout) (get-element ::changeuserpassword changeuserlayout))
+     (exit-application)
+     (.startActivity a (.getIntent a))))
+ 
+  (defn change-credentials-db "Changes database information (username and password) of user" []
+   (do (database/update-user (get-element ::changeuserusername changeuserlayout) (get-element ::changeuserpassword changeuserlayout))
      (exit-application)
      (.startActivity a (.getIntent a))))
  
@@ -221,9 +244,17 @@
    (do (set-element ::l2ccyrillic (algorithm/convert-to-cyr (get-element ::l2clatin homel2clayout)) homel2clayout)
       (data/update-history (get-element ::l2clatin homel2clayout) (algorithm/convert-to-cyr (get-element ::l2clatin homel2clayout)))))
  
+  (defn convert-latin-db "Function that converts Latin text and inserts conversion history in database" []
+   (do (set-element ::l2ccyrillic (algorithm/convert-to-cyr (get-element ::l2clatin homel2clayout)) homel2clayout)
+      (database/insert-history-data (get-element ::l2clatin homel2clayout) (algorithm/convert-to-cyr (get-element ::l2clatin homel2clayout)))))
+ 
   (defn convert-cyrillic "Function that converts cyrillic text" []
    (do (set-element ::c2llatin (algorithm/convert-to-lat (get-element ::c2lcyrillic homec2llayout)) homec2llayout)
       (data/update-history (get-element ::c2llatin homec2llayout) (algorithm/convert-to-cyr (get-element ::c2lcyrillic homec2llayout)))))
+  
+    (defn convert-cyrillic-db "Function that converts cyrillic text and inserts conversion history in database" []
+   (do (set-element ::c2llatin (algorithm/convert-to-lat (get-element ::c2lcyrillic homec2llayout)) homec2llayout)
+      (database/insert-history-data (get-element ::c2llatin homec2llayout) (algorithm/convert-to-cyr (get-element ::c2lcyrillic homec2llayout)))))
  
  (defn set-tabs "Sets tab action bar" []
  (on-ui
@@ -244,11 +275,11 @@
            [:tab {:text "History"
                   :tab-listener (tab-listener
                                  :on-tab-selected (fn [tab ft]
-                                                     (do (change-layout history-layout) (show-history))))}]
+                                                     (do (change-layout history-layout) (show-history))))}] ; (show-history-db)
            [:tab {:text "User"
                   :tab-listener (tab-listener
                                  :on-tab-selected (fn [tab ft]
-                                                     (do (change-layout change-user-layout) (set-current-user)) ))}]
+                                                     (do (change-layout change-user-layout) (set-current-user)) ))}] ; (set-current-user-db)
            ]})))
  
  

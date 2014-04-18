@@ -12,7 +12,7 @@
   (swap! user-main conj {:username username :password password}))
 
 ; Defines history of converted words and/or sentences and adds initial history
-(def history (atom (vector {:lat "Clojure" :cyr "Цлојуре"} {:lat "Android" :cyr "Андроид"})))
+(def history (atom (vector {:latin "Clojure" :cyrillic "Цлојуре"} {:latin "Android" :cyrillic "Андроид"})))
 
 (defn update-history "Update history from given parameters as latin and cyrillic text" [lat cyr]
-  (swap! history conj {:lat lat :cyr cyr}))
+  (swap! history conj {:latin lat :cyrillic cyr}))
