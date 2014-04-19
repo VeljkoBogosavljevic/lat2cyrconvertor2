@@ -22,7 +22,7 @@ In ~lein.profiles.clj is also defined java and android sdk path. Make sure there
 
 For list of lein droid commands enter lein droid in cmd.
 
-Usage
+Description
 =================
 
 Application enables conversion of latin text to cyrillic and vice versa, cyrillic text to latin, both using Clojure algorithm, review history of converted words and changing user credentials. Application is developed as modern Android application with described funcionality divided by tabs:
