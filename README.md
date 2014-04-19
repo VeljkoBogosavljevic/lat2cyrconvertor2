@@ -42,11 +42,17 @@ For application screenshots check out https://github.com/VeljkoBogosavljevic/lat
 References
 =================
 Practical Clojure - Luke VanderHart, Stuart Sierra
+
 Programming Collective Intellinegce - Toby Segaran
+
 https://github.com/clojure-android/lein-droid
+
 https://github.com/krisc/events/blob/master/tutorial.md
+
 https://github.com/clojure-android/neko/wiki
+
 http://clojure-android.github.io/neko/
+
 and other tuttorials
 
 License
